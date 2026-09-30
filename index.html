@@ -16,6 +16,13 @@ a{color:#0058B8}
 html,body{height:100%}
 #app{height:100vh;overflow:auto}
 header > div:last-child > span{white-space:nowrap}
+html.dark body{background:#000000;color:#F5F5F7}
+html.dark .fld{background:#2C2C2E !important;color:#F5F5F7 !important;border-color:transparent}
+html.dark .fld:focus{background:#1C1C1E !important;border-color:#0A84FF !important;box-shadow:0 0 0 4px rgba(10,132,255,0.3) !important}
+html.dark .fld::placeholder, html.dark input::placeholder{color:#8E8E93}
+html.dark input{color:#F5F5F7}
+button:focus-visible, a:focus-visible, [tabindex]:focus-visible, input:focus-visible{outline:3px solid #0A84FF !important;outline-offset:2px}
+@media (prefers-reduced-motion: reduce){*{animation:none !important;transition:none !important;scroll-behavior:auto !important}}
 div[style*="position: absolute; inset: 0"]{position:fixed !important}
 div[role="status"][style*="position: absolute"]{position:fixed !important}
 #app > div{width:100% !important;height:100vh !important;min-width:1100px;min-height:640px}
@@ -44,6 +51,9 @@ div[role="status"][style*="position: absolute"]{position:fixed !important}
   main [style*="grid-template-columns: 36px 1fr 120px 150px"]{grid-template-columns:36px 1fr 130px !important}
   main [style*="grid-template-columns: 36px 1fr 120px 150px"] > span:nth-child(3){display:none !important}
   main [style*="justify-content: space-between"]{flex-wrap:wrap}
+  main section[aria-label="Next step"]{flex-wrap:wrap}
+  main section[aria-label="Next step"] > div:last-child{width:100%}
+  main section[aria-label="Next step"] > div:last-child > button{flex:1}
   main section, main form, main article{max-width:100%;box-sizing:border-box;overflow-x:auto}
   main [style*="position: sticky; top: -28px"]{position:static !important}
   main [style*="168px repeat(12"]{grid-template-columns:96px repeat(12, minmax(0, 1fr)) !important}
@@ -108,6 +118,9 @@ div[role="status"][style*="position: absolute"]{position:fixed !important}
 <span style="font-size: 12px; color: #86868B">Run leader, {{sessionCount}} sessions</span>
 </div>
 </div>
+<div role="group" aria-label="Appearance" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 2px; background: #E8E8ED; border-radius: 10px; padding: 2px">
+<sc-for list="{{themes}}" as="t" hint-placeholder-count="3"><button onClick="{{t.pick}}" aria-pressed="{{t.pressed}}" style="border: none; border-radius: 8px; padding: 5px 4px; min-height: 30px; font-size: 12px; font-weight: 600; background: {{t.bg}}; color: {{t.fg}}; box-shadow: {{t.sh}}">{{t.label}}</button></sc-for>
+</div>
 </div>
 </nav>
 
@@ -134,15 +147,53 @@ Patterns up to date for W{{week}}
 <sc-if value="{{isHome}}" hint-placeholder-val="{{ true }}">
 <div style="display: flex; flex-direction: column; gap: 20px">
 
-<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 12px">
+<section aria-label="Next step" style="display: flex; align-items: center; gap: 16px; background: linear-gradient(180deg, #F3F8FF 0%, #FFFFFF 100%); border: 1px solid #DCEAFD; border-radius: 20px; padding: 18px 22px">
+<span style="width: 44px; height: 44px; flex-shrink: 0; border-radius: 12px; background: #0071E3; display: flex; align-items: center; justify-content: center"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="{{next.icon}}"></path></svg></span>
+<div style="display: flex; flex-direction: column; gap: 2px; flex-grow: 1; min-width: 0">
+<span style="font-size: 12px; font-weight: 700; color: #0058B8">Next step</span>
+<span style="font-size: 17px; font-weight: 600; color: #1D1D1F">{{next.title}}</span>
+<span style="font-size: 13px; color: #6E6E73">{{next.sub}}</span>
+</div>
+<div style="display: flex; gap: 8px; flex-wrap: wrap">
+<button onClick="{{next.go}}" style="border: none; background: #0071E3; color: #FFFFFF; border-radius: 999px; padding: 10px 18px; min-height: 42px; font-size: 14px; font-weight: 600">{{next.cta}}</button>
+<button onClick="{{next.go2}}" style="border: 1px solid #E0E0E5; background: #FFFFFF; color: #1D1D1F; border-radius: 999px; padding: 10px 18px; min-height: 42px; font-size: 14px; font-weight: 600">{{next.cta2}}</button>
+</div>
+</section>
+
+<section style="background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); padding: 22px 24px; display: flex; flex-direction: column; gap: 16px">
+<div style="display: flex; justify-content: space-between; align-items: baseline; gap: 12px">
+<div style="display: flex; flex-direction: column; gap: 2px">
+<h2 style="margin: 0; font-size: 19px">Your runners at a glance</h2>
+<span style="font-size: 12.5px; color: #86868B">{{glanceSub}}</span>
+</div>
+<button onClick="{{goPatterns}}" style="border: none; background: none; color: #0071E3; font-size: 13px; font-weight: 600; padding: 8px 0">What these mean</button>
+</div>
+<div role="img" aria-label="{{glanceAria}}" style="display: flex; height: 14px; border-radius: 999px; overflow: hidden; background: #F2F2F5; gap: 2px">
+<sc-for list="{{tiles}}" as="t" hint-placeholder-count="5"><div title="{{t.label}}: {{t.count}}" style="height: 14px; width: {{t.w}}%; background: {{t.bar}}"></div></sc-for>
+</div>
+<div style="display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 8px">
 <sc-for list="{{tiles}}" as="t" hint-placeholder-count="5">
-<button onClick="{{t.go}}" style="text-align: left; background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); padding: 16px 18px; display: flex; flex-direction: column; gap: 8px">
-<span style="align-self: flex-start; font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 10px; background: {{t.bg}}; color: {{t.fg}}">{{t.label}}</span>
-<span style="display: flex; align-items: baseline; gap: 8px"><span style="font-size: 30px; font-weight: 700; line-height: 1; color: #1D1D1F">{{t.count}}</span><span style="font-size: 12px; font-weight: 600; color: {{t.dFg}}">{{t.delta}}</span></span>
-<span style="font-size: 12.5px; color: #6E6E73; line-height: 1.35">{{t.desc}}</span>
+<button onClick="{{t.go}}" style="text-align: left; border: none; background: #F9F9FB; border-radius: 14px; padding: 12px 14px; display: flex; flex-direction: column; gap: 4px; color: #1D1D1F">
+<span style="display: flex; align-items: center; gap: 6px; font-size: 12.5px; font-weight: 600; color: {{t.fg}}"><span style="width: 9px; height: 9px; border-radius: 999px; background: {{t.bar}}"></span>{{t.label}}</span>
+<span style="display: flex; align-items: baseline; gap: 6px"><span style="font-size: 26px; font-weight: 700; line-height: 1.05">{{t.count}}</span><span style="font-size: 11.5px; font-weight: 600; color: {{t.dFg}}">{{t.delta}}</span></span>
+<span style="font-size: 12px; color: #6E6E73; line-height: 1.35">{{t.desc}}</span>
 </button>
 </sc-for>
 </div>
+<div style="display: flex; flex-direction: column; gap: 10px; border-top: 1px solid #F0F0F3; padding-top: 14px">
+<span style="font-size: 13px; font-weight: 600; color: #424245">How they're changing</span>
+<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 8px">
+<sc-for list="{{shapeCards}}" as="c" hint-placeholder-count="6">
+<button onClick="{{c.go}}" aria-label="{{c.label}}: {{c.count}} runners" style="text-align: left; border: none; background: #F9F9FB; border-radius: 14px; padding: 12px; display: flex; flex-direction: column; gap: 6px; color: #1D1D1F">
+<span style="display: flex; align-items: flex-end; gap: 2px; height: 22px; width: 100%">
+<sc-for list="{{c.bars}}" as="b" hint-placeholder-count="12"><span style="flex-grow: 1; border-radius: 2px; height: {{b.hs}}px; background: {{b.c}}"></span></sc-for>
+</span>
+<span style="display: flex; justify-content: space-between; align-items: baseline; gap: 6px"><span style="font-size: 12.5px; font-weight: 600">{{c.label}}</span><span style="font-size: 18px; font-weight: 700">{{c.count}}</span></span>
+</button>
+</sc-for>
+</div>
+</div>
+</section>
 
 <div style="display: grid; grid-template-columns: 1.25fr 1fr; gap: 18px; align-items: start">
 <div style="display: flex; flex-direction: column; gap: 18px">
@@ -185,16 +236,6 @@ Patterns up to date for W{{week}}
 </div>
 
 <div style="display: flex; flex-direction: column; gap: 18px">
-<section style="background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
-<h2 style="margin: 0; font-size: 19px">Your weekly routine</h2>
-<sc-for list="{{routine}}" as="st" hint-placeholder-count="4">
-<button onClick="{{st.go}}" style="display: grid; grid-template-columns: 30px 1fr auto; gap: 12px; align-items: center; text-align: left; border: none; background: transparent; padding: 4px 0; color: #1D1D1F">
-<span style="width: 28px; height: 28px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 13px; font-weight: 700; background: {{st.dotBg}}; color: {{st.dotFg}}">{{st.n}}</span>
-<span style="display: flex; flex-direction: column; gap: 1px"><span style="font-size: 14.5px; font-weight: 600">{{st.title}}</span><span style="font-size: 12.5px; color: #6E6E73">{{st.hint}}</span></span>
-<svg width="8" height="14" viewBox="0 0 8 14" fill="none" stroke="#C7C7CC" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 1l6 6-6 6"></path></svg>
-</button>
-</sc-for>
-</section>
 <section style="background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); padding: 22px 24px; display: flex; flex-direction: column; gap: 10px">
 <h2 style="margin: 0; font-size: 19px">Wins to celebrate</h2>
 <sc-if value="{{noWins}}" hint-placeholder-val="{{ false }}"><span style="font-size: 13px; color: #86868B">No streaks or comebacks this week.</span></sc-if>
@@ -208,26 +249,6 @@ Patterns up to date for W{{week}}
 </div>
 </div>
 
-<section style="background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); padding: 22px 24px; display: flex; flex-direction: column; gap: 14px">
-<div style="display: flex; justify-content: space-between; align-items: baseline">
-<div style="display: flex; flex-direction: column; gap: 2px">
-<h2 style="margin: 0; font-size: 19px">How participation is changing</h2>
-<span style="font-size: 12.5px; color: #86868B">Trajectory shapes across your runners</span>
-</div>
-<button onClick="{{goPatterns}}" style="border: none; background: none; color: #0071E3; font-size: 13px; font-weight: 600; padding: 8px 0">What each shape means</button>
-</div>
-<div style="display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); gap: 10px">
-<sc-for list="{{shapeCards}}" as="c" hint-placeholder-count="6">
-<button onClick="{{c.go}}" style="text-align: left; border: none; background: #F9F9FB; border-radius: 14px; padding: 14px; display: flex; flex-direction: column; gap: 8px; color: #1D1D1F">
-<span style="display: flex; align-items: flex-end; gap: 2px; height: 26px; width: 100%">
-<sc-for list="{{c.bars}}" as="b" hint-placeholder-count="12"><span style="flex-grow: 1; border-radius: 2px; height: {{b.hs}}px; background: {{b.c}}"></span></sc-for>
-</span>
-<span style="font-size: 13.5px; font-weight: 600">{{c.label}}</span>
-<span style="font-size: 24px; font-weight: 700; line-height: 1">{{c.count}}</span>
-</button>
-</sc-for>
-</div>
-</section>
 
 <section style="background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); padding: 22px 24px; display: flex; flex-direction: column; gap: 12px">
 <div style="display: flex; justify-content: space-between; align-items: baseline">
@@ -270,7 +291,7 @@ Patterns up to date for W{{week}}
 <span style="width: 48px; height: 48px; border-radius: 999px; display: flex; align-items: center; justify-content: center; font-size: 15px; font-weight: 600; background: {{a.bg}}; color: {{a.fg}}">{{a.initials}}</span>
 <div style="display: flex; flex-direction: column; gap: 5px; min-width: 0">
 <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap">
-<span style="font-weight: 600; font-size: 16px">{{a.name}}</span>
+<button onClick="{{a.open}}" style="border: none; background: none; padding: 0; font-weight: 600; font-size: 16px; color: #1D1D1F; text-decoration: underline; text-decoration-color: #D1D1D6; text-underline-offset: 3px">{{a.name}}</button>
 <span style="font-size: 12px; font-weight: 600; border-radius: 999px; padding: 3px 9px; background: {{a.shapeBg}}; color: {{a.shapeFg}}">{{a.shapeLabel}}</span>
 <span style="font-size: 11.5px; font-weight: 700; border-radius: 999px; padding: 3px 9px; background: {{a.prBg}}; color: {{a.prFg}}">{{a.priority}}</span>
 <span style="font-size: 12.5px; color: #86868B">{{a.session}}</span>
@@ -280,11 +301,9 @@ Patterns up to date for W{{week}}
 <sc-if value="{{a.isDone}}" hint-placeholder-val="{{ false }}"><span style="font-size: 12.5px; font-weight: 600; color: #1E7A45">{{a.doneLabel}}</span></sc-if>
 </div>
 <div style="display: flex; gap: 8px; align-items: center">
-<button onClick="{{a.open}}" style="border: 1px solid #E0E0E5; background: #FFFFFF; color: #1D1D1F; border-radius: 999px; padding: 10px 14px; min-height: 42px; font-size: 13px; font-weight: 600">Profile</button>
 <sc-if value="{{a.isTodo}}" hint-placeholder-val="{{ true }}">
-<button onClick="{{a.toggleTmpl}}" aria-expanded="{{a.isTmpl}}" style="border: 1px solid #CFE2FB; background: #F0F6FF; color: #0058B8; border-radius: 999px; padding: 10px 14px; min-height: 42px; font-size: 13px; font-weight: 600">Draft message</button>
-<button onClick="{{a.messaged}}" style="border: none; background: #0071E3; color: #FFFFFF; border-radius: 999px; padding: 10px 14px; min-height: 42px; font-size: 13px; font-weight: 600">Messaged</button>
-<button onClick="{{a.called}}" style="border: none; background: #0071E3; color: #FFFFFF; border-radius: 999px; padding: 10px 14px; min-height: 42px; font-size: 13px; font-weight: 600">Called</button>
+<button onClick="{{a.toggleTmpl}}" aria-expanded="{{a.isTmpl}}" style="border: none; background: #0071E3; color: #FFFFFF; border-radius: 999px; padding: 10px 16px; min-height: 42px; font-size: 13px; font-weight: 600">Message…</button>
+<button onClick="{{a.called}}" style="border: 1px solid #E0E0E5; background: #FFFFFF; color: #1D1D1F; border-radius: 999px; padding: 10px 14px; min-height: 42px; font-size: 13px; font-weight: 600">Called</button>
 <button onClick="{{a.notConcern}}" style="border: 1px solid #E0E0E5; background: #F9F9FB; color: #B0304A; border-radius: 999px; padding: 10px 14px; min-height: 42px; font-size: 13px; font-weight: 600">Not a concern</button>
 </sc-if>
 <sc-if value="{{a.isDone}}" hint-placeholder-val="{{ false }}">
@@ -402,7 +421,7 @@ Patterns up to date for W{{week}}
 <button onClick="{{clearShape}}" style="display: flex; align-items: center; gap: 8px; border: none; border-radius: 999px; padding: 8px 14px; min-height: 38px; font-size: 13px; font-weight: 600; background: #1D1D1F; color: #FFFFFF">Shape: {{shapeFilterLabel}}<svg width="10" height="10" viewBox="0 0 10 10" stroke="#FFFFFF" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="M2 2l6 6M8 2l-6 6"></path></svg></button>
 </sc-if>
 </div>
-<button onClick="{{goRoster}}" style="flex-shrink: 0; border: none; background: #0071E3; color: #FFFFFF; border-radius: 999px; padding: 10px 16px; min-height: 40px; font-size: 14px; font-weight: 600">+ Add runner</button>
+<span style="display: flex; gap: 8px; flex-shrink: 0"><button onClick="{{goRosterList}}" style="border: 1px solid #E0E0E5; background: #FFFFFF; color: #1D1D1F; border-radius: 999px; padding: 10px 16px; min-height: 40px; font-size: 14px; font-weight: 600">Edit list</button><button onClick="{{goRoster}}" style="border: none; background: #0071E3; color: #FFFFFF; border-radius: 999px; padding: 10px 16px; min-height: 40px; font-size: 14px; font-weight: 600">+ Add runner</button></span>
 </div>
 <div style="background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); overflow: hidden">
 <div style="display: grid; grid-template-columns: 1.9fr 1.5fr 1.4fr 1.4fr 1.6fr 0.8fr; gap: 12px; padding: 12px 20px; font-size: 12px; font-weight: 600; color: #6E6E73; background: #F9F9FB; border-bottom: 1px solid #E8E8ED">
@@ -429,6 +448,7 @@ Patterns up to date for W{{week}}
 
 
 <sc-if value="{{isRoster}}" hint-placeholder-val="{{ false }}">
+<button onClick="{{rosterBack}}" style="border: none; background: none; color: #0071E3; font-size: 14px; font-weight: 600; padding: 0 0 12px">‹ All runners</button>
 <div style="display: grid; grid-template-columns: 430px 1fr; gap: 20px; align-items: start">
 <form onSubmit="{{submitForm}}" style="background: #FFFFFF; border: 1px solid #ECECF0; border-radius: 20px; box-shadow: 0 1px 2px rgba(0,0,0,0.04), 0 6px 20px rgba(0,0,0,0.04); padding: 24px; display: flex; flex-direction: column; gap: 16px; margin: 0">
 <div style="display: flex; flex-direction: column; gap: 4px">
@@ -523,6 +543,7 @@ Patterns up to date for W{{week}}
 <span style="font-size: 13px; font-weight: 600; border-radius: 999px; padding: 5px 12px; background: {{d.shapeBg}}; color: {{d.shapeFg}}">{{d.shapeLabel}}</span>
 </div>
 <div style="font-size: 14px; color: #6E6E73">{{d.group}}, member since {{d.since}} · Goal: <strong style="color: #1D1D1F; font-weight: 600">{{dGoal}}</strong></div>
+<div style="display: flex; gap: 8px; margin-top: 4px"><button onClick="{{editD}}" style="border: 1px solid #E0E0E5; background: #FFFFFF; color: #1D1D1F; border-radius: 999px; padding: 6px 12px; min-height: 32px; font-size: 12.5px; font-weight: 600">Edit details</button><button onClick="{{deleteD}}" style="border: 1px solid #F8D5DC; background: #FFFFFF; color: #B0304A; border-radius: 999px; padding: 6px 12px; min-height: 32px; font-size: 12.5px; font-weight: 600">Remove</button></div>
 <sc-if value="{{d.hasContext}}" hint-placeholder-val="{{ false }}"><span style="align-self: flex-start; font-size: 12.5px; font-weight: 600; color: #0058B8; background: #E8F1FD; border-radius: 999px; padding: 4px 10px">{{d.context}}</span></sc-if>
 </div>
 </section>
@@ -1229,6 +1250,7 @@ Filters apply to everything on this page. Other coaches' runners are shown by nu
 <div role="status" style="position: absolute; left: 50%; bottom: 28px; transform: translateX(-50%); display: flex; align-items: center; gap: 10px; background: rgba(29,29,31,0.86); backdrop-filter: saturate(180%) blur(20px); color: #FFFFFF; border-radius: 999px; padding: 12px 20px 12px 14px; font-size: 14px; font-weight: 500; box-shadow: 0 10px 30px rgba(0,0,0,0.2); z-index: 30">
 <span style="width: 22px; height: 22px; border-radius: 999px; background: #34C759; display: flex; align-items: center; justify-content: center"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="3.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12.5l4.5 4.5L19 7.5"></path></svg></span>
 {{toast}}
+<sc-if value="{{hasUndo}}" hint-placeholder-val="{{ false }}"><button onClick="{{doUndo}}" style="margin-left: 6px; border: none; background: rgba(255,255,255,0.18); color: #FFFFFF; border-radius: 999px; padding: 5px 12px; font-size: 13px; font-weight: 700">Undo</button></sc-if>
 </div>
 </sc-if>
 </div>
@@ -1254,7 +1276,8 @@ class Component extends DCLogic {
       logs: ok ? saved.logs || {} : this.sampleLogs(),
       events: ok ? saved.events || {} : { 33: 'Independence Day weekend', 35: 'Heavy rain' },
       onboarded: (() => { try { return localStorage.getItem('bps-onboarded') === '1'; } catch (e) { return false; } })(),
-      tmplFor: null, weekTag: '', weekNote: '',
+      tmplFor: null, weekTag: '', weekNote: '', toastUndo: false,
+      theme: (() => { try { return localStorage.getItem('bps-theme') || 'auto'; } catch (e) { return 'auto'; } })(),
       draft: {}, changes: null, attTab: 'todo', noteDraft: '', gScope: 'all', gSort: 'shape', gDim: 'slot', gSel: null, gSess: 'all', gSlot: 'all', gTable: false, reasonFor: null,
       form: this.emptyForm(), editId: null, formErr: '', confirmId: null, toast: ''
     };
@@ -1512,10 +1535,11 @@ class Component extends DCLogic {
     this.setState(patch);
   }
 
-  flash(msg) {
-    this.setState({ toast: msg });
+  flash(msg, undo) {
+    this._undo = undo || null;
+    this.setState({ toast: msg, toastUndo: !!undo });
     clearTimeout(this._toastTimer);
-    this._toastTimer = setTimeout(() => this.setState({ toast: '' }), 2600);
+    this._toastTimer = setTimeout(() => { this._undo = null; this.setState({ toast: '', toastUndo: false }); }, undo ? 5000 : 2600);
   }
 
   go(screen) { this.setState({ screen, prev: this.state.screen, shape: '', filter: screen === 'runners' ? 'all' : this.state.filter }); }
@@ -1598,7 +1622,7 @@ class Component extends DCLogic {
     const prevCount = {};
     runners.forEach((r) => { const pk = this.classify([-1].concat(r.weeks.slice(0, 11))); prevCount[pk] = (prevCount[pk] || 0) + 1; });
     const GOODUP = { engaged: true, recovery: true };
-    const tiles = order.map((k) => ({ label: P[k].label, fg: P[k].fg, bg: P[k].bg, desc: P[k].desc, count: count(runners, k),
+    const tiles = order.map((k) => ({ label: P[k].label, fg: P[k].fg, bg: P[k].bg, bar: P[k].bar, w: runners.length ? (count(runners, k) / runners.length * 100).toFixed(2) : '0', desc: P[k].desc, count: count(runners, k),
       delta: (() => { const dv = count(runners, k) - (prevCount[k] || 0); return dv === 0 ? 'same as W' + (s.week - 1) : (dv > 0 ? '+' : '\u2212') + Math.abs(dv) + ' vs W' + (s.week - 1); })(),
       dFg: (() => { const dv = count(runners, k) - (prevCount[k] || 0); if (!dv || k === 'insufficient') return '#86868B'; return (dv > 0) === !!GOODUP[k] ? '#1E7A45' : '#B0304A'; })(),
       go: () => this.setState({ screen: 'runners', prev: this.state.screen, filter: k, shape: '' }) }));
@@ -1617,7 +1641,7 @@ class Component extends DCLogic {
       const st = s.status[r.id];
       const done = !!st && st.week === s.week;
       const snoozed = !!st && !done && st.until != null && st.until >= s.week;
-      const mark = (what, kind, msg) => () => { this.persist({ status: Object.assign({}, this.state.status, { [r.id]: { what, week: this.state.week } }), logs: addLog(r.id, what, kind) }); this.flash(msg); };
+      const mark = (what, kind, msg) => () => { const prev = { status: this.state.status, logs: this.state.logs }; this.persist({ tmplFor: null, status: Object.assign({}, this.state.status, { [r.id]: { what, week: this.state.week } }), logs: addLog(r.id, what, kind) }); this.flash(msg, () => this.persist(prev)); };
       return Object.assign({}, r, {
         priority, prBg: PR[priority][0], prFg: PR[priority][1], rank: PR[priority][2], session: r.group,
         reason: warn.length ? warn.join(' · ') : r.signal,
@@ -1625,7 +1649,7 @@ class Component extends DCLogic {
         doneLabel: st && (done || snoozed) ? '✓ ' + st.what + (st.reason ? ' · ' + st.reason : '') + (st.until && st.until > st.week ? ' · back on your list in W' + (st.until + 1) : (done ? ' this week' : '')) : '',
         isPicking: this.state.reasonFor === r.id && !done,
         reasons: ['Exams or work', 'Injury or illness', 'Travel', 'Weather or season', 'Moved away', 'Other'].map((rs) => ({ label: rs,
-          pick: () => { const until = rs === 'Moved away' ? this.state.week + 52 : this.state.week + 3; this.persist({ reasonFor: null, status: Object.assign({}, this.state.status, { [r.id]: { what: 'Not a concern', reason: rs, week: this.state.week, until } }), logs: addLog(r.id, 'Not a concern: ' + rs, 'nc') }); this.flash(rs === 'Moved away' ? 'Saved. ' + r.name.split(' ')[0] + ' won\u2019t be flagged again.' : 'Saved. Back on your list in W' + (until + 1) + ' if nothing changes.'); } })),
+          pick: () => { const prev = { status: this.state.status, logs: this.state.logs }; const until = rs === 'Moved away' ? this.state.week + 52 : this.state.week + 3; this.persist({ reasonFor: null, status: Object.assign({}, this.state.status, { [r.id]: { what: 'Not a concern', reason: rs, week: this.state.week, until } }), logs: addLog(r.id, 'Not a concern: ' + rs, 'nc') }); this.flash(rs === 'Moved away' ? 'Saved. ' + r.name.split(' ')[0] + ' won\u2019t be flagged again.' : 'Paused until W' + (until + 1) + '.', () => this.persist(prev)); } })),
         noReason: () => { this.persist({ reasonFor: null, status: Object.assign({}, this.state.status, { [r.id]: { what: 'Not a concern', week: this.state.week } }), logs: addLog(r.id, 'Not a concern', 'nc') }); this.flash('Marked not a concern. Saved as feedback.'); },
         cancelPick: () => this.setState({ reasonFor: null }),
         tmpl: this.template(r), waUrl: 'https://wa.me/?text=' + encodeURIComponent(this.template(r)),
@@ -1713,6 +1737,7 @@ class Component extends DCLogic {
     const runTotal = runners.reduce((a, r) => a + val(r), 0);
     const saveWeek = () => {
       const st = this.state;
+      const prevSnap = { runners: st.runners, week: st.week, events: st.events, changes: st.changes, draft: st.draft };
       const changes = [];
       const next = st.runners.map((r) => {
         const v = st.draft[r.id] != null ? st.draft[r.id] : 0;
@@ -1727,7 +1752,7 @@ class Component extends DCLogic {
       const tagTxt = [st.weekTag, st.weekNote.trim()].filter(Boolean).join(': ');
       if (tagTxt) ev[newWeek] = tagTxt;
       this.persist({ runners: next, week: newWeek, draft: {}, changes, events: ev, weekTag: '', weekNote: '' });
-      this.flash('W' + newWeek + ' saved. ' + changes.length + (changes.length === 1 ? ' runner' : ' runners') + ' changed pattern.');
+      this.flash('W' + newWeek + ' saved. ' + changes.length + (changes.length === 1 ? ' runner' : ' runners') + ' changed pattern.', () => this.persist(prevSnap));
     };
     const changeRows = (s.changes || []).map((c) => ({ name: c.name, from: P[c.from].label, to: P[c.to].label, fromBg: P[c.from].bg, fromFg: P[c.from].fg, toBg: P[c.to].bg, toFg: P[c.to].fg,
       open: () => this.setState({ screen: 'detail', prev: 'log', runnerId: c.id, noteDraft: '' }) }));
@@ -1789,8 +1814,9 @@ class Component extends DCLogic {
       if (this.state.runnerId === id) patch.runnerId = rest[0].id;
       if (this.state.editId === id) { patch.editId = null; patch.form = this.emptyForm(); }
       if (this.state.screen === 'detail' && this.state.runnerId === id) patch.screen = 'runners';
+      const before = this.state.runners;
       this.persist(patch);
-      this.flash((gone ? gone.name.split(' ')[0] : 'Runner') + ' deleted');
+      this.flash((gone ? gone.name.split(' ')[0] : 'Runner') + ' removed', () => this.persist({ runners: before }));
     };
 
     // Profile
@@ -1808,7 +1834,7 @@ class Component extends DCLogic {
       ['Must', 'Automatic pattern reading', 'Six signals, a trajectory shape and a state for every runner, updated when the week is saved.', 'Pattern library', 'patterns'],
       ['Must', 'Who needs you', 'A short list ordered by urgency, with the reason and a suggested response.', 'Needs you', 'attention'],
       ['Must', 'Runner profile', 'Weekly chart, pattern breakdown vs their own usual, ideas, notes and outreach log.', 'All runners', 'runners'],
-      ['Must', 'Add, edit, delete runners', 'Keep the roster current; new runners get a pattern straight away.', 'Add & edit', 'roster'],
+      ['Must', 'Add, edit, delete runners', 'Keep the roster current; new runners get a pattern straight away.', 'All runners', 'runners'],
       ['Must', 'Human-only action', 'The coach logs what they did. The app never contacts runners.', 'Needs you', 'attention'],
       ['Should', 'Session-wide dips', 'Spot when a whole session misses the same week, so the session is fixed first.', 'Overview', 'home'],
       ['Should', 'Wins', 'Streaks and comebacks worth encouraging.', 'Overview', 'home'],
@@ -1816,7 +1842,7 @@ class Component extends DCLogic {
       ['Must', 'Message drafts', 'A suggested, editable message for each pattern, copied or opened in WhatsApp. The coach sends it; the app never does.', 'Needs you', 'attention'],
       ['Should', 'Week notes', 'Coaches tag unusual weeks (rain, festival, exams, route change). Notes appear on every chart so outside causes are not read as personal decline.', 'Log attendance', 'log'],
       ['Should', 'Did check-ins help?', 'For each runner contacted, shows whether they ran again in the next two weeks, so coaches learn which outreach works.', 'Overview', 'home'],
-      ['Should', 'Runner goals', 'Each runner\u2019s goal (fitness, race, weight loss, stress, social) is recorded and can be compared in the Global view.', 'Add & edit', 'roster'],
+      ['Should', 'Runner goals', 'Each runner\u2019s goal (fitness, race, weight loss, stress, social) is recorded and can be compared in the Global view.', 'All runners', 'runners'],
       ['Should', 'Phone layout and first-run guide', 'Logging and follow-ups work on a phone after a session; a short guide explains the weekly routine on first visit.', 'Overview', 'home'],
       ['Should', 'Reasons and snooze', 'When a coach says a flag is not a concern, they pick a reason (injury, exams, travel...). The runner pauses for 3 weeks and the reason feeds the Global view.', 'Needs you', 'attention'],
       ['Should', 'Feedback loop', '"Not a concern" marks are counted to tune the rules with the NGO.', 'Needs you', 'attention'],
@@ -2128,10 +2154,10 @@ class Component extends DCLogic {
       scope: 'M6 3h9l4 4v14H6zM14 3v5h5M9 13h7M9 17h5',
       global: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM3 12h18M12 3c2.5 2.5 3.5 5.5 3.5 9s-1 6.5-3.5 9M12 3c-2.5 2.5-3.5 5.5-3.5 9s1 6.5 3.5 9'
     };
-    const activeKey = s.screen === 'detail' ? (['home', 'attention', 'log', 'runners', 'roster', 'patterns', 'global'].indexOf(s.prev) >= 0 ? s.prev : 'runners') : s.screen;
+    const activeKey = s.screen === 'roster' ? 'runners' : s.screen === 'detail' ? (['home', 'attention', 'log', 'runners', 'patterns', 'global'].indexOf(s.prev) >= 0 ? s.prev : 'runners') : s.screen;
     const navGroups = [
       ['This week', [['home', 'Overview', 0], ['attention', 'Needs you', todo.length], ['log', 'Log attendance', 0]]],
-      ['Runners', [['runners', 'All runners', 0], ['roster', 'Add & edit', 0]]],
+      ['Runners', [['runners', 'All runners', 0]]],
       ['Programme', [['global', 'Global view', 0]]],
       ['Learn', [['patterns', 'Pattern library', 0], ['scope', 'Project scope', 0]]]
     ].map(([title, list]) => ({ title, items: list.map(([key, label, badge]) => {
@@ -2204,6 +2230,18 @@ class Component extends DCLogic {
       noteDraft: s.noteDraft, onNote: (e) => this.setState({ noteDraft: e.target.value }),
       addNote: () => { const txt = this.state.noteDraft.trim(); if (!txt) return; this.persist({ logs: addLog(dr.id, 'Note: ' + txt, 'note'), noteDraft: '' }); this.flash('Note saved'); },
       scopeRows,
+      next: todo.length ? { icon: 'M6 16v-5a6 6 0 0 1 12 0v5l1.6 2H4.4zM10 20.5a2 2 0 0 0 4 0', title: todo.length + (todo.length === 1 ? ' runner needs' : ' runners need') + ' you this week', sub: 'Most urgent: ' + todo.slice(0, 2).map((a) => a.name.split(' ')[0] + ' (' + a.shapeLabel.toLowerCase() + ')').join(', '), cta: 'Review list', go: () => this.go('attention'), cta2: 'Log W' + nextWeek, go2: () => this.go('log') }
+        : { icon: 'M9 3.5h6v3H9zM6 5h12v16H6zM9 11h6M9 15h4', title: 'All caught up', sub: 'Next: log W' + nextWeek + ' after your sessions. It takes about five minutes.', cta: 'Log W' + nextWeek, go: () => this.go('log'), cta2: 'All runners', go2: () => this.go('runners') },
+      glanceSub: runners.length + ' runners across ' + SESSIONS.length + ' sessions · changes since W' + (s.week - 1),
+      glanceAria: tiles.map((t) => t.label + ' ' + t.count).join(', '),
+      goRosterList: () => this.setState({ screen: 'roster', prev: 'runners', editId: null }),
+      rosterBack: () => this.go('runners'),
+      editD: () => this.setState({ screen: 'roster', prev: 'detail', editId: dr.id, formErr: '', form: { name: dr.name, group: dr.group, since: dr.since, goal: dr.goal || 'Get fit', runs: dr.weeks.filter((w) => w >= 0).join(', ') } }),
+      deleteD: () => this.setState({ confirmId: dr.id }),
+      themes: [['auto', 'Auto'], ['light', 'Light'], ['dark', 'Dark']].map(([k, l]) => ({ label: l, pressed: (s.theme || 'auto') === k ? 'true' : 'false',
+        bg: (s.theme || 'auto') === k ? '#FFFFFF' : 'transparent', fg: (s.theme || 'auto') === k ? '#1D1D1F' : '#6E6E73', sh: (s.theme || 'auto') === k ? '0 1px 3px rgba(0,0,0,0.12)' : 'none',
+        pick: () => { try { localStorage.setItem('bps-theme', k); } catch (e) {} this.setState({ theme: k }); } })),
+      hasUndo: !!s.toastUndo, doUndo: () => { const u = this._undo; this._undo = null; clearTimeout(this._toastTimer); this.setState({ toast: '', toastUndo: false }); if (u) { u(); this.flash('Undone'); } },
       outcomes, hasOutcomes: outcomes.length > 0, noOutcomes: outcomes.length === 0, outcomeSummary,
       formGoals,
       weekTags: ['Heavy rain', 'Festival or holiday', 'Exam season', 'Route or time change', 'Coach away', 'Race or event'].map((t) => ({ label: t, pick: () => this.setState({ weekTag: this.state.weekTag === t ? '' : t }),
@@ -2265,18 +2303,62 @@ function renderNode(n, scope, out) {
   const el = n.cloneNode(false);
   for (const a of Array.from(el.attributes)) {
     if (a.name.startsWith('hint-')) { el.removeAttribute(a.name); continue; }
-    if (!a.value.includes('{{')) continue;
+    const themed = DARK && (a.name === 'style' || a.name === 'fill' || a.name === 'stroke');
+    if (!a.value.includes('{{')) { if (themed) el.setAttribute(a.name, theme(a.name, a.value, tag)); continue; }
     if (a.name.startsWith('on')) {
       const fn = lookup(whole(a.value), scope);
       el.removeAttribute(a.name);
       if (typeof fn === 'function') el.addEventListener(a.name.slice(2), fn);
     } else {
-      el.setAttribute(a.name, interp(a.value, scope));
+      const v = interp(a.value, scope);
+      el.setAttribute(a.name, themed ? theme(a.name, v, tag) : v);
     }
   }
   renderNodes(n.childNodes, scope, []).forEach((c) => el.appendChild(c));
   out.push(el);
 }
+
+// ---- Dark theme: role-aware colour mapping (background / text / border / stroke) ----
+let DARK = false;
+const TM = {
+  bg: { '#FFFFFF': '#1C1C1E', '#F5F5F7': '#2C2C2E', '#F9F9FB': '#242426', '#F2F2F5': '#2C2C2E', '#F2F2F7': '#2C2C2E', '#F0F0F3': '#2C2C2E', '#ECECF0': '#2C2C2E',
+    '#E8E8ED': '#3A3A3C', '#E3E3E8': '#3A3A3C', '#E0E0E5': '#48484A', '#D1D1D6': '#48484A', '#FBFBFD': '#111113', '#E5E5EA': '#38383A',
+    '#F5F9FF': '#0E2238', '#F0F6FF': '#0E2238', '#EEF5FF': '#0E2238', '#F3F8FF': '#0E2238', '#E6EFFC': '#12345A', '#DCE9FB': '#12345A', '#E8F1FD': '#0F2E50', '#CDE2FB': '#173A63',
+    '#FFF1E2': '#3A2410', '#FDECEF': '#3A1620', '#E4F6EA': '#0F2E1B', '#FFF9E8': '#2F260C', '#FFF6DC': '#2F260C',
+    '#1D1D1F': '#48484A', '#C7C7CC': '#636366', '#86B6EF': '#2F5E96', '#3987E5': '#3F8AE6', '#1C5CAB': '#6DA7EC', '#0D366B': '#B7D3F6',
+    '#2A78D6': '#3987E5', '#EB6834': '#E8703C', '#1BAF7A': '#1FA877', '#0071E3': '#0A84FF', '#D9D9DE': '#48484A' },
+  text: { '#1D1D1F': '#F5F5F7', '#424245': '#D1D1D6', '#3A3A3C': '#E5E5EA', '#6E6E73': '#A1A1A6', '#86868B': '#8E8E93', '#636366': '#AEAEB2',
+    '#0058B8': '#64A8FF', '#0071E3': '#2997FF', '#1C5CAB': '#6DA7EC', '#A35200': '#FFB35C', '#B0304A': '#FF7B93', '#1E7A45': '#4CD97B',
+    '#6B5300': '#F5D06A', '#5C4700': '#F5D06A', '#C4213A': '#FF6B7F', '#D1D1D6': '#636366', '#AEAEB2': '#8E8E93' },
+  border: { '#ECECF0': '#38383A', '#E8E8ED': '#38383A', '#E0E0E5': '#48484A', '#E5E5EA': '#38383A', '#F0F0F3': '#2C2C2E', '#D9D9DE': '#48484A',
+    '#CFE2FB': '#1F4A7A', '#DCEAFD': '#1F4A7A', '#F5E4B0': '#5C4A12', '#1D1D1F': '#8E8E93', '#FFFFFF': '#38383A', '#0071E3': '#0A84FF', '#D1D1D6': '#48484A' },
+  stroke: { '#FFFFFF': '#1C1C1E', '#1D1D1F': '#F5F5F7', '#F0F0F3': '#2C2C2E', '#C7C7CC': '#48484A', '#636366': '#8E8E93', '#AEAEB2': '#636366',
+    '#2A78D6': '#3987E5', '#EB6834': '#E8703C', '#1BAF7A': '#1FA877', '#86868B': '#8E8E93', '#0071E3': '#0A84FF' }
+};
+const RGBA = { 'rgba(255,255,255,0.72)': 'rgba(28,28,30,0.72)', 'rgba(255,255,255,0.94)': 'rgba(28,28,30,0.94)', 'rgba(255,255,255,0.97)': 'rgba(44,44,46,0.97)',
+  'rgba(246,246,248,0.92)': 'rgba(22,22,24,0.92)', 'rgba(29,29,31,0.86)': 'rgba(72,72,74,0.92)' };
+const HEXRE = /#[0-9a-fA-F]{6}\b/g;
+function mapColors(v, role) {
+  const m = TM[role];
+  let out = v.replace(HEXRE, (h) => m[h.toUpperCase()] || h);
+  if (role === 'bg') out = out.replace(/rgba\([^)]*\)/g, (r) => RGBA[r.replace(/\s/g, '')] || r);
+  return out;
+}
+function theme(name, v, tag) {
+  if (name === 'fill') return mapColors(v, tag === 'text' ? 'text' : 'bg');
+  if (name === 'stroke') return mapColors(v, 'stroke');
+  if (v.indexOf('width: 1440px') >= 0) return v.replace(/#F5F5F7/i, '#000000');
+  return v.split(';').map((d) => {
+    const i = d.indexOf(':'); if (i < 0) return d;
+    const prop = d.slice(0, i).trim().toLowerCase(), val = d.slice(i + 1);
+    const role = prop.indexOf('background') >= 0 ? 'bg' : (prop === 'color' ? 'text' : (prop.indexOf('border') >= 0 ? 'border' : (prop === 'fill' ? 'bg' : (prop === 'stroke' ? 'stroke' : null))));
+    return role ? d.slice(0, i + 1) + mapColors(val, role) : d;
+  }).join(';');
+}
+let mq = null;
+try { mq = window.matchMedia('(prefers-color-scheme: dark)'); mq.addEventListener('change', () => scheduleRender()); } catch (e) {}
+function computeDark() { const t = comp.state.theme || 'auto'; return t === 'dark' || (t === 'auto' && !!(mq && mq.matches)); }
+
 let pending = false, lastScreen = null;
 function scheduleRender() { if (!pending) { pending = true; requestAnimationFrame(render); } }
 function render() {
@@ -2286,6 +2368,9 @@ function render() {
   const act = document.activeElement;
   const focusId = act && act.id ? act.id : null;
   const sel = focusId && act.selectionStart != null ? [act.selectionStart, act.selectionEnd] : null;
+  DARK = computeDark();
+  document.documentElement.classList.toggle('dark', DARK);
+  document.documentElement.style.colorScheme = DARK ? 'dark' : 'light';
   const nodes = renderNodes(tpl.childNodes, comp.renderVals(), []);
   app.replaceChildren(...nodes);
   const m2 = app.querySelector('main');
